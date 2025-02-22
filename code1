@@ -1,0 +1,67 @@
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+class GnomeClickerApp:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Гном Кликер")
+        self.root.geometry("400x300")  # Устанавливаем размер окна
+        self.root.configure(bg="#f0f0f0")  # Устанавливаем фоновый цвет
+
+        # Загрузка баланса пользователя
+        self.gnome_coins = self.load_balance()
+
+        # Установка фонового изображения
+        bg_image = Image.open("background.jpg")  # Замените на путь к вашему фоновому изображению
+        bg_photo = ImageTk.PhotoImage(bg_image)
+        bg_label = tk.Label(root, image=bg_photo)
+        bg_label.image = bg_photo
+        bg_label.place(relwidth=1, relheight=1)
+
+        # Создание стилизованной метки для отображения баланса
+        self.balance_label = ttk.Label(root, text=f"Гномкоины: {self.gnome_coins}", font=("Arial", 18), background="#f0f0f0")
+        self.balance_label.pack(pady=20)
+
+        # Создание стилизованной кнопки-гнома
+        gnome_button_image = Image.open("gnome.png")  # Замените на путь к вашему изображению гнома
+        gnome_button_image = gnome_button_image.resize((100, 100), Image.LANCZOS)  # Измените размеры на нужные вам
+        gnome_button_photo = ImageTk.PhotoImage(gnome_button_image)
+        self.gnome_button = ttk.Button(root, image=gnome_button_photo, command=self.click_gnome, style='Custom.TButton')
+        self.gnome_button.image = gnome_button_photo
+        self.gnome_button.pack(pady=10)
+
+        # Настройка стиля кнопки
+        style = ttk.Style()
+        style.configure('Custom.TButton', font=("Arial", 14), padding=10, background="#4CAF50", foreground="white")
+        style.map('Custom.TButton', background=[('active', '#3e8e41')])
+
+        # Настройка стиля для красной кнопки закрытия
+        style.configure('Red.TButton', font=("Arial", 14), padding=10, background="red", foreground="white")
+        style.map('Red.TButton', background=[('active', 'darkred')])
+
+        # Создание красной кнопки закрытия
+        close_button = ttk.Button(root, text="Закрыть", command=root.destroy, style='Red.TButton')
+        close_button.pack(pady=10)
+
+    def click_gnome(self):
+        # Увеличение баланса на 1 гномкоин при нажатии кнопки
+        self.gnome_coins += 1
+        self.balance_label.config(text=f"Гномкоины: {self.gnome_coins}")
+        self.save_balance()
+
+    def load_balance(self):
+        try:
+            with open('gnome_balance.txt', 'r') as file:
+                return int(file.read().strip())
+        except (FileNotFoundError, ValueError):
+            return 0
+
+    def save_balance(self):
+        with open('gnome_balance.txt', 'w') as file:
+            file.write(str(self.gnome_coins))
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = GnomeClickerApp(root)
+    root.mainloop()
